@@ -2,6 +2,7 @@
   "name": "project-castles-99",
   "type": "module",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "vite",
     "server": "tsx server/server.ts",
