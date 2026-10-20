@@ -8,6 +8,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const previewPort = env.PREVIEW_PORT ? Number(env.PREVIEW_PORT) : undefined;
 
+  // Comma-separated hostnames `vite preview` accepts (Host-header check).
+  const allowedHosts = (env.PREVIEW_ALLOWED_HOSTS ?? "rampart.maremosso.net")
+    .split(",")
+    .map((host) => host.trim())
+    .filter(Boolean);
+
   return {
   base: process.env.GITHUB_ACTIONS ? "/rebuild-and-ruin/" : "/",
   build: {
@@ -32,6 +38,7 @@ export default defineConfig(({ mode }) => {
   },
   preview: {
     host: true,
+    allowedHosts,
     port: previewPort,
     strictPort: previewPort !== undefined,
   },
