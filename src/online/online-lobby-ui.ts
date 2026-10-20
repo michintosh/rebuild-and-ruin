@@ -14,6 +14,7 @@ interface LobbyElements {
   wait: HTMLSelectElement;
   gameMode: HTMLSelectElement;
   playerCount: HTMLSelectElement;
+  webcam: HTMLSelectElement;
   seed: HTMLInputElement;
   joinCodeInput: HTMLInputElement;
   createError: HTMLElement;
@@ -97,6 +98,7 @@ export function initLobbyUi({
             seed: Number.isFinite(seedNum) ? seedNum : undefined,
             gameMode: elements.gameMode.value,
             playerCount: Number(elements.playerCount.value),
+            webcam: elements.webcam.value === "on",
           },
         });
         setIsHost(true);

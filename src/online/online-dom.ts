@@ -30,6 +30,9 @@ export const createGameMode = document.getElementById(
 export const createPlayerCount = document.getElementById(
   "create-player-count",
 ) as HTMLSelectElement;
+export const createWebcam = document.getElementById(
+  "create-webcam",
+) as HTMLSelectElement;
 export const createSeed = document.getElementById(
   "create-seed",
 ) as HTMLInputElement;

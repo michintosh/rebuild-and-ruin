@@ -52,7 +52,22 @@ export interface RoomSettings {
   seed?: number; // optional map seed (server generates random if omitted)
   gameMode?: string; // "classic" or "modern" (default "modern")
   playerCount?: number; // seats in the match: 2 or 3 (default 3)
+  webcam?: boolean; // allow opt-in peer-to-peer webcam tiles (default off)
 }
+
+/** WebRTC signalling payload relayed verbatim between two seated peers (the
+ *  server never inspects the SDP). `cam` announces whether the sender is
+ *  currently publishing video, so receivers can hide a tile with no picture. */
+export type RtcSignalData =
+  | { kind: "offer"; sdp: string }
+  | { kind: "answer"; sdp: string }
+  | {
+      kind: "ice";
+      candidate: string;
+      sdpMid: string | null;
+      sdpMLineIndex: number | null;
+    }
+  | { kind: "cam"; on: boolean };
 
 export type ClientMessage =
   // Lobby (pre-game)
@@ -79,6 +94,9 @@ export type ClientMessage =
   // took it over (see SeatReclaimMessage). Relayed to the host, which
   // validates ownership + liveness and broadcasts the lockstep flip.
   | { type: "requestSeatReclaim"; playerId: ValidPlayerId }
+  // Webcam signalling: relayed by the server to the seat `to` as an
+  // RtcSignalForwardedMessage stamped with the sender's seat.
+  | { type: "rtcSignal"; to: ValidPlayerId; data: RtcSignalData }
   // A previously-seated socket whose tab was hidden past the away-disconnect
   // window (see online-away-watchdog) reconnects into its already-STARTED
   // room. The `token` (issued at slot selection — see JoinedMessage.
@@ -543,6 +561,13 @@ interface RequestSeatReclaimForwardedMessage {
   playerId: ValidPlayerId;
 }
 
+/** Server→peer: another seat's webcam signalling payload (see RtcSignalData). */
+interface RtcSignalForwardedMessage {
+  type: "rtcSignal";
+  from: ValidPlayerId;
+  data: RtcSignalData;
+}
+
 /** Host→peers desync-detection heartbeat. The host broadcasts its shared-RNG
  *  cursor (`rngState`) tagged with the `simTick` it was sampled at, every
  *  HEARTBEAT_INTERVAL_TICKS (see online-heartbeat.ts). Non-host peers compare it
@@ -602,6 +627,7 @@ export type ServerMessage =
   | SeatReclaimMessage
   | RequestResyncMessage
   | RequestSeatReclaimForwardedMessage
+  | RtcSignalForwardedMessage
   | HostLeftMessage
   | HeartbeatMessage
   | FullStateMessage;
@@ -631,6 +657,7 @@ export const MESSAGE = {
   LIFE_LOST_CHOICE: "lifeLostChoice",
   UPGRADE_PICK: "upgradePick",
   REQUEST_SEAT_RECLAIM: "requestSeatReclaim",
+  RTC_SIGNAL: "rtcSignal",
   REJOIN_ROOM: "rejoinRoom",
   PING: "ping",
   // Lobby
@@ -676,6 +703,7 @@ export function sanitizeRoomSettings(raw: Partial<RoomSettings>): RoomSettings {
   const gameMode = String(raw.gameMode ?? GAME_MODE_MODERN);
   const playerCount = Number(raw.playerCount);
   return {
+    webcam: raw.webcam === true,
     maxRounds: VALID_MAX_ROUNDS.includes(maxRounds) ? maxRounds : 0,
     cannonMaxHp: VALID_CANNON_HP.includes(cannonMaxHp)
       ? cannonMaxHp

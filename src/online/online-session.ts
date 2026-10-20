@@ -60,6 +60,7 @@ export interface OnlineSession {
   roomCannonMaxHp: number;
   roomGameMode: GameMode;
   roomPlayerCount: number;
+  roomWebcam: boolean;
   keepaliveTimer: ReturnType<typeof setInterval> | null;
   lobbyStartTime: number;
   /** Wire-arrived dialog choices whose scheduled apply found no open
@@ -151,6 +152,7 @@ export function createSession(): OnlineSession {
     roomCannonMaxHp: DEFAULT_CANNON_HP,
     roomGameMode: GAME_MODE_MODERN,
     roomPlayerCount: DEFAULT_PLAYER_COUNT,
+    roomWebcam: false,
     keepaliveTimer: null,
     lobbyStartTime: 0,
     earlyLifeLostChoices: new Map(),

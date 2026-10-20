@@ -30,23 +30,26 @@ import {
   SELECT_TIMER,
 } from "../../shared/core/game-constants.ts";
 import { emitGameEvent, GAME_EVENT } from "../../shared/core/game-event-bus.ts";
+import { CANVAS_W, TILE_SIZE } from "../../shared/core/grid.ts";
 import { tryBattleView } from "../../shared/core/phase-views.ts";
 import {
   isActivePlayer,
   type ValidPlayerId,
 } from "../../shared/core/player-slot.ts";
 import type { UpgradeId } from "../../shared/core/upgrade-defs.ts";
-import { PLAYER_NAMES } from "../../shared/ui/player-config.ts";
+import { getPlayerColor, PLAYER_NAMES } from "../../shared/ui/player-config.ts";
+import { rgb } from "../../shared/ui/theme.ts";
 import { createAwayWatchdog } from "../online-away-watchdog.ts";
 import { canvas, worldCanvas } from "../online-dom.ts";
 import { createHeartbeatMonitor } from "../online-heartbeat.ts";
 import { createLagDetector } from "../online-lag-detector.ts";
 import { extendWithRemoteCrosshairs } from "../online-remote-crosshairs.ts";
 import { pollDeferredResyncs } from "../online-resync-defer.ts";
-import { GAME_EXIT_EVENT } from "../online-router.ts";
+import { GAME_CONTAINER_ACTIVE, GAME_EXIT_EVENT } from "../online-router.ts";
 import { createOnlineSendActions } from "../online-send-actions.ts";
 import { createGameOverPayload } from "../online-serialize.ts";
 import { defaultClient, RESET_SCOPE_NEW_GAME } from "../online-stores.ts";
+import { createWebcam } from "../online-webcam.ts";
 import { handleServerMessage, initDeps } from "./deps.ts";
 import { initPromote } from "./promote.ts";
 import { createOnlineRuntimeSessionHelpers } from "./session.ts";
@@ -378,6 +381,33 @@ export function initOnlineRuntime(): void {
   // self-contained subscriber: it acts only on heartbeat messages and ignores
   // everything else, so it needs no hook into handleServerMessage / deps.ts.
   network.onMessage(heartbeat.onMessage);
+
+  // Opt-in webcam tiles ride the same bus as a third self-contained
+  // subscriber (acts only on RTC_SIGNAL). Presentation-only: it reads the
+  // camera projection and seat sets but never touches the sim.
+  const webcam = createWebcam({
+    canvas,
+    canvasWidth: CANVAS_W,
+    send,
+    isEnabled: () =>
+      ctx.session.roomWebcam &&
+      renderer.container.classList.contains(GAME_CONTAINER_ACTIVE),
+    myPlayerId: () =>
+      isActivePlayer(ctx.session.myPlayerId) ? ctx.session.myPlayerId : null,
+    remoteHumans: () => ctx.session.remotePlayerSlots,
+    castleCenter: (playerId) => {
+      const tower = runtime.runtimeState.state?.players[playerId]?.homeTower;
+      if (!tower) return null;
+      return {
+        wx: (tower.col + 1) * TILE_SIZE,
+        wy: (tower.row + 1) * TILE_SIZE,
+      };
+    },
+    worldToScreen: (wx, wy) => runtime.camera.worldToScreen(wx, wy),
+    towerPx: TILE_SIZE * 2,
+    playerColor: (playerId) => rgb(getPlayerColor(playerId).wall),
+  });
+  network.onMessage(webcam.onMessage);
 
   document.addEventListener(GAME_EXIT_EVENT, () => {
     runtime.shutdown();

@@ -204,6 +204,10 @@ function handleMessage(
       break;
     }
 
+    case MESSAGE.RTC_SIGNAL:
+      rooms.forwardRtcSignal(socket, msg.to, msg.data);
+      break;
+
     case MESSAGE.PING:
       break;
 

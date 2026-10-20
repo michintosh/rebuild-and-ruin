@@ -36,6 +36,7 @@ export interface HandleServerLifecycleDeps {
     | "roomCannonMaxHp"
     | "roomGameMode"
     | "roomPlayerCount"
+    | "roomWebcam"
     | "lobbyStartTime"
     | "occupiedSlots"
     | "remotePlayerSlots"
@@ -427,4 +428,5 @@ function applyRoomSettings(
   session.roomGameMode =
     (settings.gameMode as GameMode | undefined) ?? GAME_MODE_MODERN;
   session.roomPlayerCount = settings.playerCount ?? DEFAULT_PLAYER_COUNT;
+  session.roomWebcam = settings.webcam === true;
 }

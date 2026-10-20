@@ -52,6 +52,14 @@ interface SlotSelectionResult {
 }
 
 const MAX_ROOMS = 50;
+/** Webcam signalling envelope cap (an SDP offer with ICE is ~5 KB). */
+const MAX_RTC_SIGNAL_SIZE = 16_384;
+const RTC_SIGNAL_KINDS: ReadonlySet<unknown> = new Set([
+  "offer",
+  "answer",
+  "ice",
+  "cam",
+]);
 /** Grace period before destroying a room after game over — allows clients to see final screen. */
 const ROOM_CLEANUP_DELAY_MS = 60_000;
 // 60s: allow clients to fetch final screen state before cleanup
@@ -217,6 +225,29 @@ export class RoomManager {
       JSON.stringify({ type: MESSAGE.REQUEST_SEAT_RECLAIM, playerId }),
     );
     return true;
+  }
+
+  /** Relay a webcam signalling payload to the socket seated at `to`, stamped
+   *  with the sender's seat. Pure pass-through: only the envelope is checked
+   *  (webcams enabled for the room, both ends seated, bounded size, known
+   *  `kind`). Returns false when dropped. */
+  forwardRtcSignal(socket: WebSocket, to: unknown, data: unknown): boolean {
+    const entry = this.socketToRoom.get(socket);
+    if (!entry?.room.settings.webcam) return false;
+    const from = entry.slotAssignments.get(socket);
+    if (from === undefined || from === to) return false;
+    if (typeof data !== "object" || data === null) return false;
+    const kind = (data as { kind?: unknown }).kind;
+    if (!RTC_SIGNAL_KINDS.has(kind)) return false;
+    const json = JSON.stringify({ type: MESSAGE.RTC_SIGNAL, from, data });
+    if (json.length > MAX_RTC_SIGNAL_SIZE) return false;
+    for (const [target, seat] of entry.slotAssignments) {
+      if (seat === to) {
+        safeSendRaw(target, json);
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Player selects a color/position slot, which becomes their playerId.
