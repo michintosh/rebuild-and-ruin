@@ -27,6 +27,9 @@ export const createWait = document.getElementById(
 export const createGameMode = document.getElementById(
   "create-game-mode",
 ) as HTMLSelectElement;
+export const createPlayerCount = document.getElementById(
+  "create-player-count",
+) as HTMLSelectElement;
 export const createSeed = document.getElementById(
   "create-seed",
 ) as HTMLInputElement;

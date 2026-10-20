@@ -36,7 +36,7 @@ import {
   type ValidPlayerId,
 } from "../../shared/core/player-slot.ts";
 import type { UpgradeId } from "../../shared/core/upgrade-defs.ts";
-import { MAX_PLAYERS, PLAYER_NAMES } from "../../shared/ui/player-config.ts";
+import { PLAYER_NAMES } from "../../shared/ui/player-config.ts";
 import { createAwayWatchdog } from "../online-away-watchdog.ts";
 import { canvas, worldCanvas } from "../online-dom.ts";
 import { createHeartbeatMonitor } from "../online-heartbeat.ts";
@@ -182,7 +182,7 @@ const runtime: GameRuntime = createGameRuntime({
     const initMsg: InitMessage = {
       type: MESSAGE.INIT,
       seed: ctx.session.roomSeed,
-      playerCount: MAX_PLAYERS,
+      playerCount: ctx.session.roomPlayerCount,
       settings: {
         maxRounds: ctx.session.roomMaxRounds,
         cannonMaxHp: ctx.session.roomCannonMaxHp,

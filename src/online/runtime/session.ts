@@ -67,7 +67,7 @@ export function createOnlineRuntimeSessionHelpers(
     lobby.seed = seed;
     deps.log(`[online] seed: ${seed}`);
     lobby.map = generateMap(new Rng(seed));
-    lobby.joined = new Array(MAX_PLAYERS).fill(false);
+    lobby.joined = new Array(deps.session.roomPlayerCount).fill(false);
     lobby.active = true;
     deps.session.lobbyStartTime = deps.timing.now();
     setMode(runtime.runtimeState, Mode.LOBBY);

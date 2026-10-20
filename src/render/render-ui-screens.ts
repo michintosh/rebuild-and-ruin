@@ -162,14 +162,16 @@ export function createLobbyOverlay(frameCtx: UIContext): {
     selection: { highlighted: null, selected: null },
     ui: {
       lobby: {
-        players: PLAYER_NAMES.map((name, i) => ({
-          name: `${name} Player`,
-          color: getPlayerColor(i as ValidPlayerId).wall,
-          joined: frameCtx.lobby.joined[i]!,
-          keyHint: frameCtx.settings.keyBindings[i]
-            ? formatKeyHint(frameCtx.settings.keyBindings[i])
-            : undefined,
-        })),
+        players: PLAYER_NAMES.slice(0, frameCtx.lobby.joined.length).map(
+          (name, i) => ({
+            name: `${name} Player`,
+            color: getPlayerColor(i as ValidPlayerId).wall,
+            joined: frameCtx.lobby.joined[i]!,
+            keyHint: frameCtx.settings.keyBindings[i]
+              ? formatKeyHint(frameCtx.settings.keyBindings[i])
+              : undefined,
+          }),
+        ),
         timer: remaining,
       },
     },

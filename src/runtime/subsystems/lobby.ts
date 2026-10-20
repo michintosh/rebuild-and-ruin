@@ -159,7 +159,7 @@ export function createLobbySystem(deps: LobbySystemDeps): LobbySystem {
       canvasW: CANVAS_W,
       canvasH: CANVAS_H,
       tileSize: TILE_SIZE,
-      slotCount: MAX_PLAYERS,
+      slotCount: runtimeState.lobby.joined.length,
       computeLayout: deps.computeLobbyLayout,
     });
   }

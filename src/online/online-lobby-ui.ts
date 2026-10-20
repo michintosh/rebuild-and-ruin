@@ -13,6 +13,7 @@ interface LobbyElements {
   hp: HTMLSelectElement;
   wait: HTMLSelectElement;
   gameMode: HTMLSelectElement;
+  playerCount: HTMLSelectElement;
   seed: HTMLInputElement;
   joinCodeInput: HTMLInputElement;
   createError: HTMLElement;
@@ -95,6 +96,7 @@ export function initLobbyUi({
             waitTimerSec: Number(elements.wait.value),
             seed: Number.isFinite(seedNum) ? seedNum : undefined,
             gameMode: elements.gameMode.value,
+            playerCount: Number(elements.playerCount.value),
           },
         });
         setIsHost(true);
@@ -144,7 +146,11 @@ export function initLobbyUi({
       rooms: readonly {
         code: string;
         players: number;
-        settings: { maxRounds: number; cannonMaxHp: number };
+        settings: {
+          maxRounds: number;
+          cannonMaxHp: number;
+          playerCount?: number;
+        };
         elapsedSec: number;
       }[],
     ) => {
@@ -167,7 +173,7 @@ export function initLobbyUi({
         item.appendChild(element("span", "room-code", r.code));
         const info = element("span", "room-info");
         info.append(
-          `${r.players}/${MAX_PLAYERS} players · ${ageLabel(r.elapsedSec)}`,
+          `${r.players}/${r.settings.playerCount ?? MAX_PLAYERS} players · ${ageLabel(r.elapsedSec)}`,
           doc.createElement("br"),
           `${roundsLabel(r.settings.maxRounds)} · ${r.settings.cannonMaxHp} HP`,
         );

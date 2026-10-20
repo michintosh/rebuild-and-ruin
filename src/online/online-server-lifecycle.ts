@@ -7,6 +7,7 @@
  * apply host-sent checkpoints — the host computes its own. */
 
 import {
+  DEFAULT_PLAYER_COUNT,
   type FullStateMessage,
   type InitMessage,
   MESSAGE,
@@ -34,6 +35,7 @@ export interface HandleServerLifecycleDeps {
     | "roomMaxRounds"
     | "roomCannonMaxHp"
     | "roomGameMode"
+    | "roomPlayerCount"
     | "lobbyStartTime"
     | "occupiedSlots"
     | "remotePlayerSlots"
@@ -424,4 +426,5 @@ function applyRoomSettings(
   session.roomCannonMaxHp = settings.cannonMaxHp;
   session.roomGameMode =
     (settings.gameMode as GameMode | undefined) ?? GAME_MODE_MODERN;
+  session.roomPlayerCount = settings.playerCount ?? DEFAULT_PLAYER_COUNT;
 }

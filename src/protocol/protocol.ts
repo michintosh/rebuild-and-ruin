@@ -51,6 +51,7 @@ export interface RoomSettings {
   waitTimerSec: number; // lobby wait duration before auto-start (seconds)
   seed?: number; // optional map seed (server generates random if omitted)
   gameMode?: string; // "classic" or "modern" (default "modern")
+  playerCount?: number; // seats in the match: 2 or 3 (default 3)
 }
 
 export type ClientMessage =
@@ -618,6 +619,9 @@ const VALID_CANNON_HP = [3, 6, 9, 12];
 const MAX_WAIT_TIMER_SEC = 120;
 const DEFAULT_WAIT_TIMER_SEC = 60;
 const VALID_GAME_MODES = ["classic", "modern"];
+const VALID_PLAYER_COUNTS = [2, 3];
+/** Seats when a room doesn't ask for fewer — every slot in the palette. */
+export const DEFAULT_PLAYER_COUNT = 3;
 export const MESSAGE = {
   ...BATTLE_MESSAGE,
   // Client → Server
@@ -670,6 +674,7 @@ export function sanitizeRoomSettings(raw: Partial<RoomSettings>): RoomSettings {
   const wait = Number(raw.waitTimerSec);
   const seed = raw.seed != null ? Math.floor(Number(raw.seed)) : undefined;
   const gameMode = String(raw.gameMode ?? GAME_MODE_MODERN);
+  const playerCount = Number(raw.playerCount);
   return {
     maxRounds: VALID_MAX_ROUNDS.includes(maxRounds) ? maxRounds : 0,
     cannonMaxHp: VALID_CANNON_HP.includes(cannonMaxHp)
@@ -681,5 +686,8 @@ export function sanitizeRoomSettings(raw: Partial<RoomSettings>): RoomSettings {
         : DEFAULT_WAIT_TIMER_SEC,
     seed: Number.isFinite(seed) ? seed : undefined,
     gameMode: VALID_GAME_MODES.includes(gameMode) ? gameMode : GAME_MODE_MODERN,
+    playerCount: VALID_PLAYER_COUNTS.includes(playerCount)
+      ? playerCount
+      : DEFAULT_PLAYER_COUNT,
   };
 }

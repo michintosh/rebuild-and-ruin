@@ -230,7 +230,11 @@ export class RoomManager {
   ): SlotSelectionResult | null {
     const entry = this.socketToRoom.get(socket);
     if (!entry || entry.started) return null;
-    if (playerId < 0 || playerId >= MAX_PLAYERS) return null;
+    if (
+      playerId < 0 ||
+      playerId >= (entry.room.settings.playerCount ?? MAX_PLAYERS)
+    )
+      return null;
 
     // Check if slot is already taken by another socket
     for (const [otherSocket, otherId] of entry.slotAssignments) {

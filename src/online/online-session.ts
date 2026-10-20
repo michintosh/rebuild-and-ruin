@@ -8,6 +8,7 @@
 
 import {
   DEFAULT_CANNON_HP,
+  DEFAULT_PLAYER_COUNT,
   type GameMessage,
   MESSAGE,
   type ServerMessage,
@@ -58,6 +59,7 @@ export interface OnlineSession {
   roomMaxRounds: number;
   roomCannonMaxHp: number;
   roomGameMode: GameMode;
+  roomPlayerCount: number;
   keepaliveTimer: ReturnType<typeof setInterval> | null;
   lobbyStartTime: number;
   /** Wire-arrived dialog choices whose scheduled apply found no open
@@ -148,6 +150,7 @@ export function createSession(): OnlineSession {
     roomMaxRounds: 0,
     roomCannonMaxHp: DEFAULT_CANNON_HP,
     roomGameMode: GAME_MODE_MODERN,
+    roomPlayerCount: DEFAULT_PLAYER_COUNT,
     keepaliveTimer: null,
     lobbyStartTime: 0,
     earlyLifeLostChoices: new Map(),

@@ -61,10 +61,12 @@ export interface LockstepOriginatorDeps<S> {
 }
 
 /** Lockstep buffer depth in sim ticks. Must exceed the worst-case
- *  cross-peer wire latency. At 60Hz sim this absorbs ~133ms of jitter,
- *  comfortably above typical LAN/WAN WebSocket round-trips. Hardcoded —
- *  every originator stamps with this same constant. */
-export const DEFAULT_ACTION_SCHEDULE_SAFETY_TICKS = 8;
+ *  cross-peer wire latency. At 60Hz sim this absorbs ~500ms of jitter,
+ *  enough for WAN WebSocket paths through a reverse proxy. Also the local
+ *  input delay: board actions apply this many ticks after the click.
+ *  Hardcoded — every originator stamps with this same constant, so all
+ *  peers must run the same value. */
+export const DEFAULT_ACTION_SCHEDULE_SAFETY_TICKS = 30;
 /** Lockstep debt (owed catch-up ticks) above which a peer must stop
  *  originating board actions (piece / cannon / fire). Half the safety
  *  window: below this, an un-corrected stamp still lands in every other
