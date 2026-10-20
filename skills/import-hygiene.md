@@ -126,7 +126,7 @@ For each violation, trace the import and classify:
 
 ```bash
 npx tsc --noEmit                                       # type-check browser code
-deno check server/server.ts                            # type-check server code
+npm run check:server                            # type-check server code
 npm run lint:all                                       # biome + knip + madge + jscpd + literals + layers + imports
 deno run -A scripts/audit-imports.ts --check               # re-exports, duplicate names, layer misuse
 npm run test:scenario                                       # headless game test

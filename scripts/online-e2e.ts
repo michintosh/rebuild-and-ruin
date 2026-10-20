@@ -28,7 +28,7 @@
  *   5. Replay with --replay <path>
  *
  * Prerequisites:
- *   Online mode: deno task server (port 8001) + npm run dev (port 5173)
+ *   Online mode: npm run server (port 8001) + npm run dev (port 5173)
  *     Defaults to local server (localhost:8001). Pass a URL to use a remote server.
  *   Local mode: npm run dev (port 5173) only
  */

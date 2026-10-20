@@ -6,7 +6,7 @@
  *
  * Run: deno test --no-check -A test/e2e/example.ts
  * Requires: npm run dev (vite on port 5173)
- * Online test also requires: deno task server (port 8001)
+ * Online test also requires: npm run server (port 8001)
  */
 
 import { assert, assertEquals, assertGreater } from "@std/assert";

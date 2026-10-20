@@ -73,7 +73,7 @@ For E2E tests, never call `page.waitForFunction` directly — use
 npm run test:scenario   # or test:determinism, test:sync, test:input, etc.
 ```
 
-If E2E: requires `npm run dev` + `deno run -A server/server.ts` in
+If E2E: requires `npm run dev` + `npm run server` in
 separate terminals. See [CLAUDE.md](../CLAUDE.md) for the full list.
 
 If the test fails, use the [/debug](./debug.md) skill — logs, analysis

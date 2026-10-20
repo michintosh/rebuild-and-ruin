@@ -1,7 +1,6 @@
 {
   "unstable": ["sloppy-imports"],
   "tasks": {
-    "server": "deno run -A server/server.ts",
     "play": "deno run -A scripts/mcp-play/server.ts",
     "replay": "deno run -A scripts/mcp-play/replay.ts"
   },

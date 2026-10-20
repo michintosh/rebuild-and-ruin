@@ -5,7 +5,7 @@
  * The host creates a 1-round room, the watcher joins. The game runs to
  * completion and the test verifies the watcher received gameOver.
  *
- * Requires: vite dev server (port 5173) + deno task server (port 8001)
+ * Requires: vite dev server (port 5173) + npm run server (port 8001)
  * Run with: deno test --allow-all test/online-game-over.test.ts
  */
 

@@ -1,8 +1,14 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { resolve } from "node:path";
 import process from "node:process";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Config-time only (not exposed to client code): `PREVIEW_PORT` from the
+  // shell or .env sets the port for `vite preview`.
+  const env = loadEnv(mode, process.cwd(), "");
+  const previewPort = env.PREVIEW_PORT ? Number(env.PREVIEW_PORT) : undefined;
+
+  return {
   base: process.env.GITHUB_ACTIONS ? "/rebuild-and-ruin/" : "/",
   build: {
     rollupOptions: {
@@ -24,4 +30,10 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: true,
+    port: previewPort,
+    strictPort: previewPort !== undefined,
+  },
+  };
 });

@@ -1,7 +1,9 @@
+import { createServer } from "node:http";
+import { WebSocketServer } from "ws";
 import {
   MESSAGE,
   type RoomSettings,
-  ServerMessage,
+  type ServerMessage,
 } from "../src/protocol/protocol.ts";
 import {
   API_ROOMS_PATH,
@@ -16,66 +18,82 @@ const rooms = new RoomManager();
 /** Reject messages larger than 64 KB (full_state worst case is ~30 KB). */
 const MAX_MESSAGE_SIZE = 65_536;
 const DEFAULT_PORT = 8001;
-const PORT = parseInt(Deno.env.get("PORT") ?? String(DEFAULT_PORT));
+const PORT = parseInt(process.env.PORT ?? String(DEFAULT_PORT));
 
-Deno.serve({ port: PORT }, (req) => {
-  const url = new URL(req.url);
+const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
+
+const httpServer = createServer((req, res) => {
+  const url = new URL(req.url ?? "/", "http://localhost");
 
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      },
+    res.writeHead(204, {
+      ...CORS_HEADERS,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     });
+    res.end();
+    return;
   }
 
   if (url.pathname === API_ROOMS_PATH) {
-    return new Response(JSON.stringify(rooms.listRooms()), {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+    res.writeHead(200, {
+      ...CORS_HEADERS,
+      "Content-Type": "application/json",
     });
+    res.end(JSON.stringify(rooms.listRooms()));
+    return;
   }
 
   if (url.pathname === WS_PLAY_PATH) {
-    const upgrade = req.headers.get("upgrade") ?? "";
-    if (upgrade.toLowerCase() !== "websocket") {
-      return new Response("Expected WebSocket upgrade", { status: 426 });
-    }
-
-    const { socket, response } = Deno.upgradeWebSocket(req);
-
-    socket.onmessage = (event) => {
-      try {
-        if (typeof event.data !== "string") return;
-        if (event.data.length > MAX_MESSAGE_SIZE) return;
-        const msg = JSON.parse(event.data);
-        if (typeof msg.type !== "string") return;
-        handleMessage(socket, msg, event.data);
-      } catch {
-        // Ignore malformed messages
-      }
-    };
-
-    socket.onclose = () => {
-      rooms.handleSocketDisconnect(socket);
-    };
-
-    socket.onerror = (e) => {
-      console.error("[server] WebSocket error:", e);
-    };
-
-    return response;
+    res.writeHead(426);
+    res.end("Expected WebSocket upgrade");
+    return;
   }
 
   if (url.pathname === HEALTH_PATH) {
-    return new Response("ok");
+    res.writeHead(200);
+    res.end("ok");
+    return;
   }
 
-  return new Response("Not found", { status: 404 });
+  res.writeHead(404);
+  res.end("Not found");
+});
+
+const wss = new WebSocketServer({
+  server: httpServer,
+  path: WS_PLAY_PATH,
+  maxPayload: MAX_MESSAGE_SIZE,
+});
+
+wss.on("connection", (ws) => {
+  // `ws` sockets expose the same surface the rooms use (readyState, send,
+  // onmessage/onclose/onerror); the room code is typed against the DOM type.
+  const socket = ws as unknown as WebSocket;
+
+  socket.onmessage = (event) => {
+    try {
+      if (typeof event.data !== "string") return;
+      if (event.data.length > MAX_MESSAGE_SIZE) return;
+      const msg = JSON.parse(event.data);
+      if (typeof msg.type !== "string") return;
+      handleMessage(socket, msg, event.data);
+    } catch {
+      // Ignore malformed messages
+    }
+  };
+
+  socket.onclose = () => {
+    rooms.handleSocketDisconnect(socket);
+  };
+
+  socket.onerror = (e) => {
+    console.error("[server] WebSocket error:", e);
+  };
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`[server] Listening on http://localhost:${PORT}`);
 });
 
 /** Route incoming WebSocket messages.
@@ -203,5 +221,3 @@ function send(socket: WebSocket, msg: ServerMessage): void {
     socket.send(JSON.stringify(msg));
   }
 }
-
-console.log(`[server] Listening on http://localhost:${PORT}`);

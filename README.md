@@ -26,12 +26,12 @@ Open `http://localhost:5173/` and choose **Local** for offline play (vs AI) or *
 Start the relay server:
 
 ```
-deno task server
+npm run server
 ```
 
 The server listens on port 8001. Players connect via the Online lobby. The server is a pure WebSocket relay; all game logic runs on the host client.
 
-For production, deploy `server/server.ts` to [Deno Deploy](https://deno.com/deploy) and the static site to GitHub Pages.
+For production, run `server/server.ts` on any Node host (`npm run server`, honours `PORT`) and the static site to GitHub Pages.
 
 ## Game Rules
 

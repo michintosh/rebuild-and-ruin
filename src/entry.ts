@@ -7,6 +7,7 @@
  */
 
 import "./style.css";
+import { DEFAULT_SERVER_HOST } from "./online/online-config.ts";
 import {
   GAME_CONTAINER_ACTIVE,
   GAME_EXIT_EVENT,
@@ -18,7 +19,6 @@ import { ROUTE_HOME, ROUTE_ONLINE, ROUTE_PLAY } from "./protocol/routes.ts";
 import { GRID_PORTRAIT_LAUNCHED } from "./shared/core/grid.ts";
 import { IS_TOUCH_DEVICE } from "./shared/platform/platform.ts";
 
-const DEFAULT_SERVER = "rebuild-and-ruin.gildas-lormeau.deno.net";
 const SERVER_STORAGE_KEY = "castles99_server";
 const CLICK_EVENT = "click";
 const gameContainer = document.getElementById("game-container")!;
@@ -96,7 +96,7 @@ onRoute(ROUTE_ONLINE, () => {
   }
   exitGameIfActive();
   serverHostInput.value =
-    localStorage.getItem(SERVER_STORAGE_KEY) || DEFAULT_SERVER;
+    localStorage.getItem(SERVER_STORAGE_KEY) || DEFAULT_SERVER_HOST;
   void importOnline();
 });
 

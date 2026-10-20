@@ -111,7 +111,7 @@ All `src/*.ts` files are automatically reordered by the pre-commit hook using `s
 
 3. **Fix all issues** from the pass
 
-4. **Build + test** — verify no regressions (`npm run build`, `deno check server/server.ts`, E2E if UI changes)
+4. **Build + test** — verify no regressions (`npm run build`, `npm run check:server`, E2E if UI changes)
 
 5. **Commit** the pass as a single commit
 

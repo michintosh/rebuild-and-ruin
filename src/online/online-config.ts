@@ -1,8 +1,12 @@
-/** Default server host for online play (Deno Deploy). */
+/** Default server host for online play. */
 
 import { WS_PLAY_PATH } from "../protocol/routes.ts";
 
-const DEFAULT_SERVER_HOST = "rebuild-and-ruin.gildas-lormeau.deno.net";
+/** Build-time default from `VITE_SERVER_HOST` (see `.env.example`), falling
+ *  back to the local dev server. `import.meta.env` is undefined under Deno. */
+export const DEFAULT_SERVER_HOST: string =
+  // @ts-ignore — import.meta.env is Vite-specific (not recognized by Deno LSP)
+  import.meta.env?.VITE_SERVER_HOST || "localhost:8001";
 /** Hosts that should use plain ws:/http: instead of wss:/https:. */
 const LOCAL_HOST_PATTERN = /^(?:localhost|127\.|192\.|10\.|0\.0\.0\.0)/;
 
@@ -20,7 +24,7 @@ export function computeApiUrl(path: string): string {
   return `${proto}//${host}${path}`;
 }
 
-/** Get the server host — from URL param, localStorage, or Deno Deploy default. */
+/** Get the server host — from URL param, localStorage, or build-time default. */
 function getServerHost(): string {
   const param = new URLSearchParams(location.search).get("server");
   if (param) return stripProtocol(param);

@@ -24,7 +24,7 @@
  *
  * Run: deno test --no-check -A test/e2e/two-humans-online.ts
  *      (E2E_HEADFUL=1 to watch the two browsers play)
- * Requires: npm run dev (vite on port 5173) AND deno task server (port 8001)
+ * Requires: npm run dev (vite on port 5173) AND npm run server (port 8001)
  */
 
 import { assert, assertEquals } from "@std/assert";
